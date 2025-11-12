@@ -334,9 +334,9 @@ Tab 3: ML Model
 Tab 4: Track Predictor 
 For Music Producers: Interactive tool to predict and optimize track popularity
 **Input Methods**:
-  * Sliders (beginner-friendly with tooltips)
-  * Manual entry (advanced users)
-  * Random example (explore real tracks)
+* Sliders (beginner-friendly with tooltips)
+* Manual entry (advanced users)
+* Random example (explore real tracks)
 **Features**:
 *  Set 14 audio characteristics (danceability, energy, tempo, etc.)
 * Get instant popularity prediction (0-100 score)
@@ -344,9 +344,9 @@ For Music Producers: Interactive tool to predict and optimize track popularity
 * See potential impact (+5 to +12 popularity points)
 * Compare with successful tracks in same genre
 **Example Recommendations**:
-* "Increase danceability from 0.5 to 0.7 for +10 points"
-* "Boost energy with louder instruments for +8 points"
-* "Try major key for more uplifting feel (+6 points)"
+  * "Increase danceability from 0.5 to 0.7 for +10 points"
+  * "Boost energy with louder instruments for +8 points"
+  * "Try major key for more uplifting feel (+6 points)"
 
 See [Streamlit App Guide](docs/streamlit_app_guide.md) for detailed usage instructions.
 
