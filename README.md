@@ -3,15 +3,42 @@
 # ![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
 
 <p align="center">
-  <img src="ChatGPT Image Nov 11, 2025, 11_08_22 AM.png" alt="Project Logo" width="25%">
+  <img src="assets/teamlogo.png" alt="Project Logo" width="25%">
 </p>
 
 
 ## Content
 * [Readme.md](https://github.com/YShutko/spotify_track_analytics_popularity_prediction/blob/1eb084f166f61e2ec0c6dcf23cdb3fea6f7f3cb8/README.md)
 * [Kanban Project Board](https://github.com/users/YShutko/projects/6)
-* [Datasets](https://github.com/YShutko/spotify_track_analytics_popularity_prediction/tree/926c78849c653732de5f592223b0ff7cda01fab8/data) 
-* [Jupyter notebook]()
+* [Datasets](https://github.com/YShutko/spotify_track_analytics_popularity_prediction/tree/926c78849c653732de5f592223b0ff7cda01fab8/data)
+* [Interactive Dashboard](app.py) - Streamlit web application
+* [Jupyter Notebooks](notebooks/) - ETL, Feature Engineering, ML Model
+* [ML Pipeline Summary](docs/ML_PIPELINE_SUMMARY.md) - Complete pipeline documentation
+
+## 🚀 Quick Start
+
+### Run the Interactive Dashboard
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Launch Streamlit app
+streamlit run app.py
+```
+
+The dashboard provides:
+- 📊 **Data Explorer**: Browse and filter 114,000 tracks
+- 📈 **Rich Visualizations**: Interactive charts and insights
+- 🤖 **ML Model Analysis**: Feature importance and performance
+- 🎯 **Track Predictor**: Predict popularity + get AI recommendations
+
+### Run the ML Pipeline
+```bash
+# Complete ETL, feature engineering, and model training
+python src/etl_pipeline.py
+python src/feature_engineering.py
+python src/train_model.py
+```
 
 ## Dataset Content
 The data set used for this project: [Kaggle](https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset). The collection of ~114,000 songs across 125 genres with features like danceability, energy, tempo, and popularity. Ideal for audio analysis, genre classification, and music trend exploration.
@@ -38,17 +65,43 @@ The dataset consists of the following columns:
 time_signature: Musical meter (e.g. 4 = 4/4 time).
 track_genre: Musical genre classification of the track.
 
-## Business Requirements
-1. **Understand Key Drivers of Song Popularity**  
-   Analyze which audio features (e.g., danceability, energy, tempo, valence) have the strongest influence on a song’s popularity score.
-2. **Classify Songs by Mood and Energy**  
-   Segment songs into categories such as *Happy*, *Sad*, *Chill*, or *High Energy* using features like valence, energy, and tempo.
-3. **Genre-Level Analysis**  
-   Identify trends across different music genres — for example, which genres are more danceable, louder, or more acoustic.
-4. **Support Playlist Curation**  
-   Enable smarter playlist generation by grouping tracks based on shared characteristics, allowing users to build playlists for specific moods or activities.
-5. **Data-Driven Music Recommendations**  
-   Establish the foundation for future ML-powered recommendations by exploring the relationship between track features and user listening behavior.
+## Business Requirements & Solutions
+
+### 1. **Understand Key Drivers of Song Popularity** ✅
+**Solution**: XGBoost ML model with feature importance analysis
+- Interactive dashboard shows top 20 most important features
+- Genre is the strongest predictor (importance: 0.0986)
+- Track length, explicit content, and energy levels are significant
+- **Access**: ML Model tab in Streamlit dashboard
+
+### 2. **Classify Songs by Mood and Energy** ✅
+**Solution**: Automated mood/energy classification system
+- 4 mood categories: Happy/High Energy, Energetic/Sad, Chill/Happy, Sad/Low Energy
+- Based on valence (positivity) and energy scores
+- Visualized in interactive pie charts
+- **Access**: Visualizations tab → Mood & Energy section
+
+### 3. **Genre-Level Analysis** ✅
+**Solution**: Comprehensive genre analytics and visualizations
+- 114 unique genres analyzed across 114,000 tracks
+- Top 20 genres by track count displayed
+- Genre-specific popularity trends
+- **Access**: Data Explorer + Visualizations tabs
+
+### 4. **Support Playlist Curation** ✅
+**Solution**: Advanced filtering and similarity search
+- Filter by genre, popularity range, and audio features
+- Download curated track lists as CSV
+- Find similar successful tracks in same genre
+- **Access**: Data Explorer tab with multi-select filters
+
+### 5. **Data-Driven Music Recommendations** ✅
+**Solution**: AI-powered recommendation engine for track optimization
+- Predict popularity for new tracks (0-100 score)
+- Get up to 5 actionable recommendations to maximize audience
+- See potential impact of each change (+5 to +12 popularity points)
+- Compare against successful tracks in same genre
+- **Access**: Track Predictor tab (music producer tool)
 
 
 ## Hypothesis
@@ -63,11 +116,14 @@ track_genre: Musical genre classification of the track.
   * Visualize relationships between key features using:
       * Correlation heatmaps
       * Pairplots and histograms
-* Interactive Dashboards & Gradio Interface
-  * Create an interactive Gradio interface that allows users to:
-  * Upload new track features and get popularity predictions
-  *  Explore how changes in tempo, energy, and valence affect classification
-  * Visualize real-time audio feature comparisons across genres or user inputs
+* Interactive Streamlit Dashboard ✅
+  * **Completed**: Full-featured web application with 4 tabs:
+    * 📊 Data Explorer - Browse and filter tracks
+    * 📈 Visualizations - Rich, interactive charts
+    * 🤖 ML Model - Feature importance and performance
+    * 🎯 Track Predictor - Predict + optimize new tracks
+  * Real-time popularity predictions with AI recommendations
+  * Music producer workflow for track optimization
     
 ## The rationale to map the business requirements to the Data Visualisations
 
@@ -98,13 +154,60 @@ This project utilizes publicly available Spotify track data for the purpose of e
 ## Planning:
 * GitHub [Project Board]([https://github.com/users/YShutko/projects/3](https://github.com/users/YShutko/projects/6)) was used to plan and track the progress.
 
-## Main Data Analysis Libraries
-* Pandas
-* Numpy
-* Plotly
-* Seabon
-* Matplotlib
-* Gradio
+## Interactive Dashboard Features
+
+### 🎵 Streamlit Web Application
+Launch with: `streamlit run app.py`
+
+#### Tab 1: Data Explorer 📊
+- Browse 114,000 Spotify tracks
+- Filter by genre and popularity range
+- View track details (name, artists, audio features)
+- Download filtered data as CSV
+
+#### Tab 2: Visualizations 📈
+- **Popularity Distribution**: Histogram of track popularity scores
+- **Audio Features**: 6 feature distributions (danceability, energy, valence, etc.)
+- **Top 20 Genres**: Bar chart of most popular genres
+- **Mood & Energy**: Pie charts showing track classification
+- **Correlation Heatmap**: Feature relationships
+- **Interactive Scatter**: Custom X/Y axis selection with color coding
+
+#### Tab 3: ML Model 🤖
+- **Model Performance Metrics**: R² = 0.39, RMSE = 17.4
+- **Top 20 Feature Importances**: Genre, track length, explicit content
+- **Prediction vs Actual**: Scatter plot visualization
+- **Residual Analysis**: Error distribution
+- **Complete Model Metadata**: JSON export of specifications
+
+#### Tab 4: Track Predictor 🎯
+**For Music Producers**: Interactive tool to predict and optimize track popularity
+
+**Input Methods**:
+- 🎚️ Sliders (beginner-friendly with tooltips)
+- 📝 Manual entry (advanced users)
+- 🎲 Random example (explore real tracks)
+
+**Features**:
+- Set 14 audio characteristics (danceability, energy, tempo, etc.)
+- Get instant popularity prediction (0-100 score)
+- Receive up to 5 AI-powered recommendations
+- See potential impact (+5 to +12 popularity points)
+- Compare with successful tracks in same genre
+
+**Example Recommendations**:
+- "Increase danceability from 0.5 to 0.7 for +10 points"
+- "Boost energy with louder instruments for +8 points"
+- "Try major key for more uplifting feel (+6 points)"
+
+See [Streamlit App Guide](docs/streamlit_app_guide.md) for detailed usage instructions.
+
+## Main Data Analysis & ML Libraries
+* **Data Processing**: Pandas, Numpy
+* **Visualization**: Plotly, Seaborn, Matplotlib
+* **ML & Feature Engineering**: Scikit-learn, XGBoost, Feature-Engine
+* **Web App**: Streamlit
+* **Data Storage**: PyArrow (Parquet format)
  
 ## Credits 
 * [The Code Institute](https://codeinstitute.net/) Learning Management System
