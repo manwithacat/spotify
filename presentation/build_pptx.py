@@ -8,6 +8,7 @@ screenshots and model metadata.
 import json
 from pathlib import Path
 from datetime import datetime
+from PIL import Image
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
@@ -17,7 +18,15 @@ from pptx.dml.color import RGBColor
 SCREENS_DIR = Path(__file__).parent / "screens"
 OUTPUT_DIR = Path(__file__).parent / "output"
 TEMPLATE_DIR = Path(__file__).parent / "templates"
+ASSETS_DIR = Path(__file__).parent.parent / "assets"
 OUTPUT_FILE = OUTPUT_DIR / "Spotify_Popularity_Prediction_Presentation.pptx"
+LOGO_PATH = ASSETS_DIR / "teamlogo.png"
+
+# Team Color Theme (from teamlogo.png)
+TEAM_NAVY = RGBColor(25, 42, 66)      # Dark navy blue background
+TEAM_ORANGE = RGBColor(255, 100, 50)  # Orange accent
+TEAM_WHITE = RGBColor(255, 255, 255)  # White text
+TEAM_LIGHT_GRAY = RGBColor(240, 240, 240)  # Light gray for backgrounds
 
 # Ensure output directory exists
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -57,43 +66,145 @@ def load_metadata():
     return {}
 
 
+def calculate_image_size(image_path, max_width, max_height):
+    """
+    Calculate image dimensions to fit within max bounds while preserving aspect ratio
+
+    Args:
+        image_path: Path to image file
+        max_width: Maximum width in Inches
+        max_height: Maximum height in Inches
+
+    Returns:
+        tuple: (width, height) in Inches
+    """
+    with Image.open(image_path) as img:
+        img_width, img_height = img.size
+        aspect_ratio = img_width / img_height
+
+    # Calculate dimensions based on max constraints
+    if aspect_ratio > max_width.inches / max_height.inches:
+        # Image is wider - constrain by width
+        width = max_width
+        height = Inches(max_width.inches / aspect_ratio)
+    else:
+        # Image is taller - constrain by height
+        height = max_height
+        width = Inches(max_height.inches * aspect_ratio)
+
+    return width, height
+
+
 def create_title_slide(prs, metadata):
-    """Create title slide with project metadata"""
-    title_slide_layout = prs.slide_layouts[0]  # Title slide layout
-    slide = prs.slides.add_slide(title_slide_layout)
+    """Create title slide with project metadata and team branding"""
+    blank_layout = prs.slide_layouts[6]  # Blank layout for custom design
+    slide = prs.slides.add_slide(blank_layout)
+
+    # Add navy background
+    background = slide.background
+    fill = background.fill
+    fill.solid()
+    fill.fore_color.rgb = TEAM_NAVY
+
+    # Add team logo in top-right corner
+    if LOGO_PATH.exists():
+        logo_width = Inches(1.5)
+        logo_height = Inches(1.0)
+        logo_left = Inches(8.3)
+        logo_top = Inches(0.3)
+        slide.shapes.add_picture(str(LOGO_PATH), logo_left, logo_top, width=logo_width)
 
     # Title
-    title = slide.shapes.title
-    title.text = metadata.get('title', 'Spotify Track Popularity Prediction')
+    title_left = Inches(0.8)
+    title_top = Inches(2.5)
+    title_width = Inches(8.4)
+    title_height = Inches(1.2)
 
-    # Subtitle
-    subtitle = slide.placeholders[1]
+    title_box = slide.shapes.add_textbox(title_left, title_top, title_width, title_height)
+    title_frame = title_box.text_frame
+    title_frame.text = metadata.get('title', 'Spotify Track Popularity Prediction')
+
+    p = title_frame.paragraphs[0]
+    p.font.size = Pt(44)
+    p.font.bold = True
+    p.font.color.rgb = TEAM_WHITE
+
+    # Subtitle with metrics
+    subtitle_top = Inches(3.8)
+    subtitle_height = Inches(2.0)
+
+    subtitle_box = slide.shapes.add_textbox(title_left, subtitle_top, title_width, subtitle_height)
+    subtitle_frame = subtitle_box.text_frame
+    subtitle_frame.word_wrap = True
+
+    # Subtitle text
     subtitle_text = metadata.get('subtitle', 'Machine Learning Pipeline with XGBoost & SHAP')
+    p1 = subtitle_frame.paragraphs[0]
+    p1.text = subtitle_text
+    p1.font.size = Pt(24)
+    p1.font.color.rgb = TEAM_WHITE
+    p1.space_after = Pt(18)
 
     # Add metrics if available
     if 'test_r2' in metadata:
-        subtitle_text += f"\n\nTest R²: {metadata['test_r2']:.4f}"
-    if 'test_rmse' in metadata:
-        subtitle_text += f" | RMSE: {metadata['test_rmse']:.2f}"
+        p2 = subtitle_frame.add_paragraph()
+        p2.text = f"Test R²: {metadata['test_r2']:.4f}"
+        if 'test_rmse' in metadata:
+            p2.text += f"  |  RMSE: {metadata['test_rmse']:.2f}"
+        p2.font.size = Pt(20)
+        p2.font.color.rgb = TEAM_ORANGE
+        p2.font.bold = True
+        p2.space_after = Pt(18)
 
-    subtitle_text += f"\n\nGenerated: {datetime.now().strftime('%B %d, %Y')}"
-
-    subtitle.text = subtitle_text
+    # Date
+    p3 = subtitle_frame.add_paragraph()
+    p3.text = f"Generated: {datetime.now().strftime('%B %d, %Y')}"
+    p3.font.size = Pt(16)
+    p3.font.color.rgb = RGBColor(200, 200, 200)
 
 
 def create_agenda_slide(prs):
-    """Create agenda/outline slide"""
-    title_only_layout = prs.slide_layouts[5]  # Title only layout
-    slide = prs.slides.add_slide(title_only_layout)
+    """Create agenda/outline slide with team branding"""
+    blank_layout = prs.slide_layouts[6]  # Blank layout
+    slide = prs.slides.add_slide(blank_layout)
 
-    title = slide.shapes.title
-    title.text = "Presentation Agenda"
+    # Add team logo
+    if LOGO_PATH.exists():
+        logo_width = Inches(1.0)
+        logo_left = Inches(8.8)
+        logo_top = Inches(0.2)
+        slide.shapes.add_picture(str(LOGO_PATH), logo_left, logo_top, width=logo_width)
+
+    # Title with orange accent bar
+    title_left = Inches(0.5)
+    title_top = Inches(0.5)
+    title_width = Inches(8)
+    title_height = Inches(0.7)
+
+    # Orange accent bar
+    accent_bar = slide.shapes.add_shape(
+        1,  # Rectangle
+        Inches(0.5), Inches(0.45),
+        Inches(0.15), Inches(0.7)
+    )
+    accent_bar.fill.solid()
+    accent_bar.fill.fore_color.rgb = TEAM_ORANGE
+    accent_bar.line.fill.background()
+
+    title_box = slide.shapes.add_textbox(title_left + Inches(0.3), title_top, title_width, title_height)
+    title_frame = title_box.text_frame
+    title_frame.text = "Presentation Agenda"
+
+    p = title_frame.paragraphs[0]
+    p.font.size = Pt(36)
+    p.font.bold = True
+    p.font.color.rgb = TEAM_NAVY
 
     # Add content text box
     left = Inches(1)
-    top = Inches(2)
+    top = Inches(1.8)
     width = Inches(8)
-    height = Inches(4)
+    height = Inches(5)
 
     txBox = slide.shapes.add_textbox(left, top, width, height)
     tf = txBox.text_frame
@@ -110,69 +221,135 @@ def create_agenda_slide(prs):
         "8. Key Insights & Findings"
     ]
 
-    for item in agenda_items:
-        p = tf.add_paragraph()
+    for i, item in enumerate(agenda_items):
+        p = tf.add_paragraph() if i > 0 else tf.paragraphs[0]
         p.text = item
-        p.font.size = Pt(18)
-        p.space_after = Pt(12)
+        p.font.size = Pt(20)
+        p.font.color.rgb = TEAM_NAVY
+        p.space_after = Pt(14)
 
 
 def create_content_slide(prs, image_path, title, description):
-    """Create a content slide with image and description"""
+    """Create a content slide with properly sized image and team branding"""
     blank_layout = prs.slide_layouts[6]  # Blank layout
     slide = prs.slides.add_slide(blank_layout)
 
-    # Add title
-    left = Inches(0.5)
-    top = Inches(0.3)
-    width = Inches(9)
-    height = Inches(0.8)
+    # Add team logo in top-right corner
+    if LOGO_PATH.exists():
+        logo_width = Inches(0.8)
+        logo_left = Inches(9.0)
+        logo_top = Inches(0.15)
+        slide.shapes.add_picture(str(LOGO_PATH), logo_left, logo_top, width=logo_width)
 
-    title_box = slide.shapes.add_textbox(left, top, width, height)
+    # Add title with orange accent bar
+    title_left = Inches(0.5)
+    title_top = Inches(0.3)
+    title_width = Inches(8.2)
+    title_height = Inches(0.6)
+
+    # Orange accent bar
+    accent_bar = slide.shapes.add_shape(
+        1,  # Rectangle
+        Inches(0.5), Inches(0.28),
+        Inches(0.1), Inches(0.6)
+    )
+    accent_bar.fill.solid()
+    accent_bar.fill.fore_color.rgb = TEAM_ORANGE
+    accent_bar.line.fill.background()
+
+    title_box = slide.shapes.add_textbox(title_left + Inches(0.2), title_top, title_width, title_height)
     title_frame = title_box.text_frame
     title_frame.text = title
 
     p = title_frame.paragraphs[0]
-    p.font.size = Pt(28)
+    p.font.size = Pt(24)
     p.font.bold = True
-    p.font.color.rgb = RGBColor(0, 51, 102)  # Dark blue
+    p.font.color.rgb = TEAM_NAVY
 
-    # Add image
-    img_left = Inches(0.5)
-    img_top = Inches(1.3)
-    img_width = Inches(9)
+    # Calculate proper image dimensions to fit in available space
+    # Available space: from after title (1.1") to before description (6.3")
+    # Available space height: 5.2 inches
+    # Available width: 9 inches (with margins)
+    max_img_width = Inches(9.0)
+    max_img_height = Inches(4.8)
 
-    slide.shapes.add_picture(str(image_path), img_left, img_top, width=img_width)
+    img_width, img_height = calculate_image_size(image_path, max_img_width, max_img_height)
 
-    # Add description at bottom
+    # Center the image horizontally
+    img_left = Inches(0.5 + (9.0 - img_width.inches) / 2)
+    img_top = Inches(1.2)
+
+    slide.shapes.add_picture(str(image_path), img_left, img_top, width=img_width, height=img_height)
+
+    # Add description at bottom with light gray background
     desc_left = Inches(0.5)
     desc_top = Inches(6.5)
     desc_width = Inches(9)
-    desc_height = Inches(0.8)
+    desc_height = Inches(0.9)
 
-    desc_box = slide.shapes.add_textbox(desc_left, desc_top, desc_width, desc_height)
+    # Light background box for description
+    desc_bg = slide.shapes.add_shape(
+        1,  # Rectangle
+        desc_left, desc_top,
+        desc_width, desc_height
+    )
+    desc_bg.fill.solid()
+    desc_bg.fill.fore_color.rgb = TEAM_LIGHT_GRAY
+    desc_bg.line.fill.background()
+
+    desc_box = slide.shapes.add_textbox(desc_left + Inches(0.2), desc_top + Inches(0.1), desc_width - Inches(0.4), desc_height - Inches(0.2))
     desc_frame = desc_box.text_frame
     desc_frame.text = description
+    desc_frame.word_wrap = True
 
     p = desc_frame.paragraphs[0]
-    p.font.size = Pt(14)
+    p.font.size = Pt(13)
     p.font.italic = True
-    p.font.color.rgb = RGBColor(64, 64, 64)  # Dark gray
+    p.font.color.rgb = RGBColor(50, 50, 50)
 
 
 def create_summary_slide(prs, metadata):
-    """Create final summary slide"""
-    title_only_layout = prs.slide_layouts[5]
-    slide = prs.slides.add_slide(title_only_layout)
+    """Create final summary slide with team branding"""
+    blank_layout = prs.slide_layouts[6]
+    slide = prs.slides.add_slide(blank_layout)
 
-    title = slide.shapes.title
-    title.text = "Key Findings & Insights"
+    # Add team logo
+    if LOGO_PATH.exists():
+        logo_width = Inches(1.0)
+        logo_left = Inches(8.8)
+        logo_top = Inches(0.2)
+        slide.shapes.add_picture(str(LOGO_PATH), logo_left, logo_top, width=logo_width)
+
+    # Title with orange accent bar
+    title_left = Inches(0.5)
+    title_top = Inches(0.5)
+    title_width = Inches(8)
+    title_height = Inches(0.7)
+
+    # Orange accent bar
+    accent_bar = slide.shapes.add_shape(
+        1,  # Rectangle
+        Inches(0.5), Inches(0.45),
+        Inches(0.15), Inches(0.7)
+    )
+    accent_bar.fill.solid()
+    accent_bar.fill.fore_color.rgb = TEAM_ORANGE
+    accent_bar.line.fill.background()
+
+    title_box = slide.shapes.add_textbox(title_left + Inches(0.3), title_top, title_width, title_height)
+    title_frame = title_box.text_frame
+    title_frame.text = "Key Findings & Insights"
+
+    p = title_frame.paragraphs[0]
+    p.font.size = Pt(36)
+    p.font.bold = True
+    p.font.color.rgb = TEAM_NAVY
 
     # Add content
     left = Inches(1)
-    top = Inches(2)
-    width = Inches(8)
-    height = Inches(4)
+    top = Inches(1.8)
+    width = Inches(8.5)
+    height = Inches(5)
 
     txBox = slide.shapes.add_textbox(left, top, width, height)
     tf = txBox.text_frame
@@ -188,11 +365,12 @@ def create_summary_slide(prs, metadata):
         "✅ Full MLflow experiment tracking enables reproducibility",
     ]
 
-    for finding in findings:
-        p = tf.add_paragraph()
+    for i, finding in enumerate(findings):
+        p = tf.add_paragraph() if i > 0 else tf.paragraphs[0]
         p.text = finding
-        p.font.size = Pt(16)
-        p.space_after = Pt(14)
+        p.font.size = Pt(18)
+        p.font.color.rgb = TEAM_NAVY
+        p.space_after = Pt(16)
 
 
 def build_presentation(metadata):
