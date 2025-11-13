@@ -118,11 +118,23 @@ make train
 ```
 
 ### `make train-mlflow`
-Run improved ML pipeline with MLflow tracking enabled.
+Run improved ML pipeline with MLflow tracking enabled (requires `cleaned_music_data.csv`).
 
 ```bash
 make train-mlflow
 ```
+
+**Features:**
+- All Phase 1-3 improvements (validation, SHAP, learning curves, etc.)
+- Full experiment tracking with MLflow
+- Logs all metrics, parameters, and plots
+- Registers model in MLflow Model Registry
+- Trains on real data from `cleaned_music_data.csv`
+
+**Output:**
+- Creates MLflow run in `spotify_popularity_prediction` experiment
+- Logs 12 parameters, 11 metrics, 9+ plots
+- Saves model as `spotify_xgboost_model` in Model Registry
 
 ### `make test-pipeline`
 Test pipeline with synthetic data (generates 1,000 samples).
