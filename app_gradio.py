@@ -527,20 +527,20 @@ def load_random_example():
     random_track = df.sample(n=1).iloc[0]
 
     return (
-        random_track['danceability'],
-        random_track['energy'],
+        float(random_track['danceability']),
+        float(random_track['energy']),
         int(random_track['key']),
-        random_track['loudness'],
+        float(random_track['loudness']),
         int(random_track['mode']),
-        random_track['speechiness'],
-        random_track['acousticness'],
-        random_track['instrumentalness'],
-        random_track['liveness'],
-        random_track['valence'],
-        random_track['tempo'],
-        random_track['duration_ms'],
+        float(random_track['speechiness']),
+        float(random_track['acousticness']),
+        float(random_track['instrumentalness']),
+        float(random_track['liveness']),
+        float(random_track['valence']),
+        float(random_track['tempo']),
+        float(random_track['duration_ms']),
         int(random_track['time_signature']),
-        random_track['track_genre']
+        str(random_track['track_genre'])
     )
 
 # ============================================================================
