@@ -23,6 +23,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.stats as stats
+import mlflow
+from mlflow.data.pandas_dataset import PandasDataset
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
@@ -117,6 +119,17 @@ print(f"✅ Loaded data: {df.shape[0]:,} rows, {df.shape[1]} columns")
 
 # Display basic info
 print(f"\nColumns: {list(df.columns)[:10]}..." if len(df.columns) > 10 else f"\nColumns: {list(df.columns)}")
+
+# Log dataset to MLflow (as first-class dataset object, not just tags)
+print("\n📊 Logging dataset to MLflow...")
+dataset = mlflow.data.from_pandas(
+    df,
+    source=DATA_PATH,
+    name="spotify_tracks",
+    targets="popularity"
+)
+mlflow.log_input(dataset, context="training")
+print(f"✅ Dataset logged: {dataset.name} ({dataset.profile['num_rows']} rows, {dataset.profile['num_columns']} columns)")
 
 
 # ============================================================================

@@ -5,6 +5,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import mlflow
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
@@ -75,6 +76,17 @@ run = tracker.start_run(
         'pipeline_version': 'improved_v1.0'
     }
 )
+
+# Log dataset to MLflow (as first-class dataset object, not just tags)
+print("\n📊 Logging dataset to MLflow...")
+dataset = mlflow.data.from_pandas(
+    df,
+    source="synthetic_data_generator",
+    name="synthetic_spotify_tracks",
+    targets="popularity"
+)
+mlflow.log_input(dataset, context="training")
+print(f"✅ Dataset logged: {dataset.name} ({dataset.profile['num_rows']} rows)")
 
 print("\n🤖 Training model...")
 tracker.log_params(params)
