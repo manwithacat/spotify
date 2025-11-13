@@ -47,17 +47,11 @@ mlflow-reset: ## Reset MLflow database (fixes inconsistent state)
 	@pkill -f "mlflow ui" 2>/dev/null || true
 	@sleep 1
 	@rm -f mlruns/.trash/* 2>/dev/null || true
-	@python -c "import sqlite3; \
-		import os; \
-		db_path = 'mlruns/mlflow.db'; \
-		if os.path.exists(db_path): \
-			conn = sqlite3.connect(db_path); \
-			conn.execute('PRAGMA integrity_check'); \
-			conn.close(); \
-			print('✅ Database integrity check passed'); \
-		else: \
-			print('📝 Database will be created on first run'); \
-		"
+	@if [ -f mlruns/mlflow.db ]; then \
+		python3 -c "import sqlite3; conn = sqlite3.connect('mlruns/mlflow.db'); conn.execute('PRAGMA integrity_check'); conn.close(); print('✅ Database integrity check passed')"; \
+	else \
+		echo "📝 Database will be created on first run"; \
+	fi
 	@echo "✅ MLflow reset complete!"
 	@echo "   Run 'make mlflow-ui' to start fresh"
 
