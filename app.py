@@ -408,17 +408,25 @@ with tab3:
     # Model info
     st.markdown("#### 📊 Model Performance Metrics")
     col1, col2, col3, col4 = st.columns(4)
+
+    # Handle both old and new metadata formats
+    metrics = metadata.get('metrics', metadata.get('performance', {}).get('test', {}))
+
     with col1:
-        st.metric("Test R² Score", f"{metadata['performance']['test']['r2']:.4f}",
-                  help="Coefficient of determination - explains 85.8% of variance")
+        r2_val = metrics.get('test_r2', metrics.get('r2', test_r2))
+        st.metric("Test R² Score", f"{r2_val:.4f}",
+                  help="Coefficient of determination")
     with col2:
-        st.metric("Test RMSE", f"{metadata['performance']['test']['rmse']:.2f}",
+        rmse_val = metrics.get('test_rmse', metrics.get('rmse', test_rmse))
+        st.metric("Test RMSE", f"{rmse_val:.2f}",
                   help="Root Mean Squared Error")
     with col3:
-        st.metric("Test MAE", f"{metadata['performance']['test']['mae']:.2f}",
+        mae_val = metrics.get('test_mae', metrics.get('mae', test_mae))
+        st.metric("Test MAE", f"{mae_val:.2f}",
                   help="Mean Absolute Error")
     with col4:
-        st.metric("Features", metadata['n_features'],
+        n_features = metadata.get('n_features', len(model.feature_names_in_))
+        st.metric("Features", n_features,
                   help="Number of audio features used")
 
     # Training info
@@ -426,20 +434,31 @@ with tab3:
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("**Hyperparameters:**")
-            st.json({
-                "n_estimators": metadata['hyperparameters']['n_estimators'],
-                "max_depth": metadata['hyperparameters']['max_depth'],
-                "learning_rate": round(metadata['hyperparameters']['learning_rate'], 4),
-                "subsample": round(metadata['hyperparameters']['subsample'], 4),
-                "colsample_bytree": round(metadata['hyperparameters']['colsample_bytree'], 4)
-            })
+            # Handle both hyperparameters and model_params
+            params = metadata.get('model_params', metadata.get('hyperparameters', {}))
+            if params:
+                display_params = {
+                    "n_estimators": params.get('n_estimators', 'N/A'),
+                    "max_depth": params.get('max_depth', 'N/A'),
+                    "learning_rate": round(params.get('learning_rate', 0), 4),
+                    "subsample": round(params.get('subsample', 0), 4),
+                    "colsample_bytree": round(params.get('colsample_bytree', 0), 4)
+                }
+                st.json(display_params)
+            else:
+                st.write("No hyperparameters available")
         with col2:
             st.markdown("**Training Info:**")
             st.write(f"- Model Type: XGBoost Regressor")
-            st.write(f"- Training Samples: {metadata['n_train_samples']:,}")
-            st.write(f"- Test Samples: {metadata['n_test_samples']:,}")
-            st.write(f"- Trained: {metadata['training_date'][:10]}")
-            st.write(f"- Tuned with: Optuna (50 trials)")
+            n_samples = metadata.get('n_samples', 'N/A')
+            st.write(f"- Total Samples: {n_samples:,}" if isinstance(n_samples, int) else f"- Total Samples: {n_samples}")
+            train_shapes = metadata.get('data_shapes', {})
+            if train_shapes:
+                st.write(f"- Train: {train_shapes.get('train', ['N/A'])[0]:,} samples")
+                st.write(f"- Test: {train_shapes.get('test', ['N/A'])[0]:,} samples")
+            timestamp = metadata.get('timestamp', metadata.get('training_date', 'N/A'))
+            if timestamp != 'N/A':
+                st.write(f"- Trained: {timestamp[:10]}")
 
     st.markdown("---")
 
