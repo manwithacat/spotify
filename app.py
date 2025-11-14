@@ -303,7 +303,7 @@ with tab2:
         color_discrete_sequence=['#1DB954']
     )
     fig.update_layout(height=400, showlegend=False)
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
     # Audio Features
     st.markdown("### 🎼 Audio Feature Distributions")
@@ -323,7 +323,7 @@ with tab2:
         )
 
     fig.update_layout(height=600, title_text="Audio Features Distribution")
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
     # Genre Analysis
     st.markdown("### 🎸 Top 20 Genres by Track Count")
@@ -338,7 +338,7 @@ with tab2:
         color_continuous_scale='Greens'
     )
     fig.update_layout(height=600, showlegend=False)
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
     # Mood/Energy Analysis
     st.markdown("### 😊 Mood & Energy Classification")
@@ -352,7 +352,7 @@ with tab2:
             title='Mood Distribution',
             color_discrete_sequence=px.colors.sequential.Greens
         )
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         energy_counts = df['energy_category'].value_counts()
@@ -362,7 +362,7 @@ with tab2:
             title='Energy Level Distribution',
             color_discrete_sequence=px.colors.sequential.Teal
         )
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     # Correlation Heatmap
     st.markdown("### 🔥 Feature Correlation Heatmap")
@@ -380,7 +380,7 @@ with tab2:
         title='Audio Features Correlation Matrix'
     )
     fig.update_layout(height=600)
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
     # Scatter plot
     st.markdown("### 📊 Interactive Scatter Plot")
@@ -402,7 +402,7 @@ with tab2:
         opacity=0.6
     )
     fig.update_layout(height=600)
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 # ============================================================================
 # TAB 3: ML Model
@@ -489,7 +489,7 @@ with tab3:
     fig.update_traces(texttemplate='%{text:.3f}', textposition='outside')
     fig.update_layout(height=max(400, len(top_features) * 30), showlegend=False)
     fig.update_yaxes(autorange="reversed")
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
     # Key insights
     st.info(f"""
@@ -552,7 +552,7 @@ with tab3:
             )
         )
         fig.update_layout(height=400)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         # Residuals histogram
@@ -568,7 +568,7 @@ with tab3:
         fig.add_vline(x=residuals.mean(), line_dash="dash", line_color="red",
                      annotation_text=f"Mean: {residuals.mean():.2f}")
         fig.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     # Additional performance visualizations
     st.markdown("### 🔍 Advanced Model Diagnostics")
@@ -589,7 +589,7 @@ with tab3:
         fig.add_hline(y=0, line_dash="dash", line_color="red",
                      annotation_text="Zero Error")
         fig.update_layout(height=400)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
         st.caption("""
         **Residual Plot Interpretation:**
@@ -618,7 +618,7 @@ with tab3:
             color_discrete_sequence=px.colors.sequential.Greens
         )
         fig.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
         st.caption("""
         **Error Distribution Analysis:**
@@ -641,7 +641,7 @@ with tab3:
         fig.add_vline(x=y_actual.mean(), line_dash="dash", line_color="red",
                      annotation_text=f"Mean: {y_actual.mean():.1f}")
         fig.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         # Predicted distribution
@@ -655,7 +655,7 @@ with tab3:
         fig.add_vline(x=y_pred.mean(), line_dash="dash", line_color="red",
                      annotation_text=f"Mean: {y_pred.mean():.1f}")
         fig.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     # Model insights
     st.markdown("### 💡 Model Performance Insights")
@@ -663,7 +663,7 @@ with tab3:
     # Calculate additional metrics
     over_predictions = np.sum(y_pred > y_actual)
     under_predictions = np.sum(y_pred < y_actual)
-    mae_by_range = error_df.groupby('Popularity Range')['Absolute Error'].mean().to_dict()
+    mae_by_range = error_df.groupby('Popularity Range', observed=True)['Absolute Error'].mean().to_dict()
 
     col1, col2, col3 = st.columns(3)
     with col1:
