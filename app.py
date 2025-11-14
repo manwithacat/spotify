@@ -106,10 +106,28 @@ def load_data():
 
 @st.cache_data
 def load_ml_data():
-    """Load ML-ready data"""
-    X_test = pd.read_parquet('data/processed/X_test.parquet')
-    y_test = pd.read_parquet('data/processed/y_test.parquet').squeeze()
-    return X_test, y_test
+    """Load ML-ready data - use full dataset for consistency"""
+    # Load the full dataset and prepare features
+    df = pd.read_parquet('data/processed/cleaned_spotify_data.parquet')
+
+    # Get model to know which features to use
+    _, metadata, _ = load_model()
+    feature_cols = metadata.get('feature_names', [])
+
+    if not feature_cols:
+        # Fallback to default features if metadata missing
+        feature_cols = ['danceability', 'energy', 'loudness', 'speechiness',
+                       'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
+
+    X = df[feature_cols].copy()
+    y = df['popularity'].copy()
+
+    # Remove NaN
+    mask = ~(X.isnull().any(axis=1) | y.isnull())
+    X, y = X[mask], y[mask]
+
+    # Use a sample for performance (first 5000 rows)
+    return X.iloc[:5000], y.iloc[:5000]
 
 @st.cache_resource
 def load_model():
@@ -166,14 +184,22 @@ with st.sidebar:
     st.markdown("## 🎵 Spotify Track Analytics")
     st.markdown("---")
     st.markdown("### About")
-    st.info("""
+    # Get metrics from metadata
+    test_r2 = metadata.get('metrics', {}).get('test_r2', 0)
+    test_adj_r2 = metadata.get('metrics', {}).get('test_adjusted_r2', 0)
+    test_rmse = metadata.get('metrics', {}).get('test_rmse', 0)
+    test_mae = metadata.get('metrics', {}).get('test_mae', 0)
+
+    st.info(f"""
     Explore 114,000 Spotify tracks and predict popularity using machine learning.
 
     **Model Performance:**
-    - R² Score: 0.86
-    - Adjusted R²: 0.85
-    - RMSE: 5.74
-    - MAE: 4.54
+    - R² Score: {test_r2:.4f}
+    - Adjusted R²: {test_adj_r2:.4f}
+    - RMSE: {test_rmse:.2f}
+    - MAE: {test_mae:.2f}
+
+    *Trained on 114K real tracks*
     """)
     st.markdown("---")
     st.markdown("### Quick Stats")
@@ -458,19 +484,13 @@ with tab3:
     """)
 
     X_test, y_test = load_ml_data()
-    # Filter and prepare test data to match model's expected features
-    X_test_model = X_test[[col for col in model.feature_names_in_ if col in X_test.columns]].copy()
-    # Add missing features with default values
-    for col in model.feature_names_in_:
-        if col not in X_test_model.columns:
-            X_test_model[col] = 2020  # Default value for missing features like release_year
-    # Ensure column order matches model's expectations
-    X_test_model = X_test_model[model.feature_names_in_]
 
-    # Make predictions on larger sample
-    sample_size = min(2000, len(X_test_model))
-    y_pred = model.predict(X_test_model[:sample_size])
-    y_actual = y_test[:sample_size].values.flatten()
+    # Data is already prepared with correct features from load_ml_data
+    sample_size = min(2000, len(X_test))
+    y_pred = model.predict(X_test[:sample_size])
+    y_actual = y_test[:sample_size]
+    if hasattr(y_actual, 'values'):
+        y_actual = y_actual.values.flatten()
 
     # Calculate metrics on this sample
     from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
@@ -820,9 +840,9 @@ with tab4:
 
 # Footer
 st.markdown("---")
-st.markdown("""
+st.markdown(f"""
 <div style='text-align: center; color: #666;'>
     <p>🎵 Spotify Track Analytics Dashboard | Built with Streamlit & XGBoost</p>
-    <p>Data: 114,000 tracks from Kaggle | Model R² = 0.86 | RMSE = 5.74</p>
+    <p>Data: 114,000 tracks from Kaggle | Model R² = {test_r2:.4f} | RMSE = {test_rmse:.2f}</p>
 </div>
 """, unsafe_allow_html=True)

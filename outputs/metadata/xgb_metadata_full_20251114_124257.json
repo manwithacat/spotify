@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-14T12:42:57.648130",
+  "dataset": "full_spotify_114k",
+  "n_samples": 114000,
+  "n_features": 9,
+  "feature_names": [
+    "danceability",
+    "energy",
+    "loudness",
+    "speechiness",
+    "acousticness",
+    "instrumentalness",
+    "liveness",
+    "valence",
+    "tempo"
+  ],
+  "model_params": {
+    "max_depth": 6,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "min_child_weight": 3,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "gamma": 0.1,
+    "objective": "reg:squarederror",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "metrics": {
+    "train_r2": 0.307218074798584,
+    "train_rmse": 18.58665338575052,
+    "train_mae": 15.011823654174805,
+    "val_r2": 0.2126528024673462,
+    "val_rmse": 19.73647801541919,
+    "val_mae": 15.959294319152832,
+    "test_r2": 0.21574527025222778,
+    "test_adjusted_r2": 0.21533226308033016,
+    "test_rmse": 19.70069312410892,
+    "test_mae": 15.9951810836792
+  },
+  "data_shapes": {
+    "train": [
+      79800,
+      9
+    ],
+    "val": [
+      17100,
+      9
+    ],
+    "test": [
+      17100,
+      9
+    ]
+  }
+}
