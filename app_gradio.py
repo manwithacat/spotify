@@ -580,12 +580,14 @@ def load_random_example():
     """Load a random track example from the dataset"""
     random_track = df.sample(n=1).iloc[0]
 
+    # Ensure all numeric values are proper Python types (not numpy types)
+    # to avoid type coercion issues with Gradio components
     return (
         float(random_track['danceability']),
         float(random_track['energy']),
-        int(random_track['key']),
+        float(random_track['key']),  # Changed to float for Slider compatibility
         float(random_track['loudness']),
-        int(random_track['mode']),
+        float(random_track['mode']),  # Changed to float - Gradio Radio may expect this
         float(random_track['speechiness']),
         float(random_track['acousticness']),
         float(random_track['instrumentalness']),
@@ -593,7 +595,7 @@ def load_random_example():
         float(random_track['valence']),
         float(random_track['tempo']),
         float(random_track['duration_ms']),
-        int(random_track['time_signature']),
+        float(random_track['time_signature']),  # Changed to float - Gradio Radio may expect this
         str(random_track['track_genre'])
     )
 
