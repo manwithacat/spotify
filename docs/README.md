@@ -26,10 +26,20 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
   - Code quality tools
   - Testing & deployment
 
+- **[Makefile Commands](MAKEFILE_COMMANDS.md)** - Detailed command reference
+  - Quick command lookup
+  - Usage examples
+  - Common workflows
+
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Directory organization and file layout
   - Quick start guide
   - Data flow diagram
   - Key features overview
+
+- **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
+  - Architecture decisions
+  - Technology stack
+  - Code organization
 
 ### For Data Scientists
 - **[ML Pipeline Summary](ML_PIPELINE_SUMMARY.md)** - Complete pipeline architecture
@@ -38,10 +48,34 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
   - Model training
   - Performance metrics
 
+- **[Hyperparameter Tuning Results](HYPERPARAMETER_TUNING_RESULTS.md)** - ⭐ NEW: Optuna tuning breakthrough
+  - 71% R² improvement (0.28 → 0.48)
+  - 50 trials optimization report
+  - Best hyperparameters found
+  - Performance comparison
+
+- **[Pipeline Verification Summary](PIPELINE_VERIFICATION_SUMMARY.md)** - Production readiness verification
+  - Reproducibility testing
+  - Model atomicity checks
+  - Collapse detection results
+  - CI/CD recommendations
+
+- **[Model Collapse Fix](MODEL_COLLAPSE_FIX.md)** - Debugging case study
+  - Problem diagnosis
+  - Root cause analysis
+  - Solution implementation
+  - Prevention strategies
+
 - **[ETL Pipeline Summary](ETL_PIPELINE_SUMMARY.md)** - Detailed ETL execution report
   - Data quality checks
   - Feature engineering details
   - Output artifacts
+
+- **[MLflow Guide](MLFLOW_GUIDE.md)** - Experiment tracking integration
+  - MLflow setup & usage
+  - Model registry
+  - Experiment comparison
+  - Deployment workflows
 
 - **[Dashboard Implementation](DASHBOARD_IMPLEMENTATION.md)** - UI/UX technical design
   - Tab-by-tab features
@@ -54,6 +88,21 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
   - Technical architecture
   - Success metrics
   - Deployment options
+
+- **[ML Pipeline Improvements Spec](ML_PIPELINE_IMPROVEMENTS_SPEC.md)** - Enhancement roadmap
+  - Proposed improvements
+  - Technical specifications
+  - Implementation plan
+
+- **[README Improvements](README_IMPROVEMENTS.md)** - Documentation enhancement plan
+  - Content improvements
+  - Structure updates
+  - User experience
+
+- **[PowerPoint Creator Spec](powerpoint_creator_spec.md)** - Presentation automation
+  - Automated slide generation
+  - Data integration
+  - Design specifications
 
 ---
 
@@ -71,7 +120,11 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
 
 | Document | Description | Audience |
 |----------|-------------|----------|
+| [Hyperparameter Tuning Results](HYPERPARAMETER_TUNING_RESULTS.md) | ⭐ Optuna optimization - 71% R² improvement | Data scientists |
+| [Pipeline Verification Summary](PIPELINE_VERIFICATION_SUMMARY.md) | Production readiness verification | ML engineers |
+| [Model Collapse Fix](MODEL_COLLAPSE_FIX.md) | Debugging case study & solution | Data scientists |
 | [ML Pipeline Summary](ML_PIPELINE_SUMMARY.md) | Complete ML pipeline | Data scientists |
+| [MLflow Guide](MLFLOW_GUIDE.md) | Experiment tracking | ML engineers |
 | [ETL Pipeline Summary](ETL_PIPELINE_SUMMARY.md) | Data processing details | Data engineers |
 | [Dashboard Implementation](DASHBOARD_IMPLEMENTATION.md) | UI/UX design | Developers |
 
@@ -80,6 +133,10 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
 | Document | Description | Audience |
 |----------|-------------|----------|
 | [Project Completion Summary](PROJECT_COMPLETION_SUMMARY.md) | Project overview | Stakeholders |
+| [Implementation Summary](IMPLEMENTATION_SUMMARY.md) | Technical implementation | Developers |
+| [ML Pipeline Improvements Spec](ML_PIPELINE_IMPROVEMENTS_SPEC.md) | Enhancement roadmap | Team |
+| [README Improvements](README_IMPROVEMENTS.md) | Documentation plan | Team |
+| [PowerPoint Creator Spec](powerpoint_creator_spec.md) | Presentation automation | Team |
 | [Learning Objectives](learningobjectives.md) | Educational goals | Students |
 | [Specification](specifiication.md) | Requirements | Team |
 
@@ -100,6 +157,15 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
 
 **...modify the model**
 → Read [ML Pipeline Summary](ML_PIPELINE_SUMMARY.md)
+
+**...optimize model performance**
+→ Read [Hyperparameter Tuning Results](HYPERPARAMETER_TUNING_RESULTS.md)
+
+**...debug model issues**
+→ Read [Model Collapse Fix](MODEL_COLLAPSE_FIX.md) and [Pipeline Verification Summary](PIPELINE_VERIFICATION_SUMMARY.md)
+
+**...track experiments**
+→ Read [MLflow Guide](MLFLOW_GUIDE.md)
 
 **...deploy the app**
 → Read [Project Completion Summary](PROJECT_COMPLETION_SUMMARY.md#deployment-options)
@@ -188,11 +254,11 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
 
 | Metric | Count |
 |--------|-------|
-| **Total Documents** | 12 |
-| **Total Pages** | 160+ |
-| **Total Words** | 32,000+ |
-| **Code Examples** | 105+ |
-| **Diagrams** | 10+ |
+| **Total Documents** | 20 |
+| **Total Pages** | 250+ |
+| **Total Words** | 50,000+ |
+| **Code Examples** | 150+ |
+| **Diagrams** | 15+ |
 | **Screenshots** | 0 (text-based) |
 
 ---
@@ -209,9 +275,13 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
 2. [ETL Pipeline Summary](ETL_PIPELINE_SUMMARY.md) - Data processing
 
 ### ML Engineer / Data Scientist
-1. [ML Pipeline Summary](ML_PIPELINE_SUMMARY.md) - Complete pipeline
-2. [ETL Pipeline Summary](ETL_PIPELINE_SUMMARY.md) - Feature engineering
-3. [Dashboard Implementation](DASHBOARD_IMPLEMENTATION.md) - Model integration
+1. [Hyperparameter Tuning Results](HYPERPARAMETER_TUNING_RESULTS.md) - ⭐ 71% R² improvement
+2. [Pipeline Verification Summary](PIPELINE_VERIFICATION_SUMMARY.md) - Production checks
+3. [Model Collapse Fix](MODEL_COLLAPSE_FIX.md) - Debugging case study
+4. [ML Pipeline Summary](ML_PIPELINE_SUMMARY.md) - Complete pipeline
+5. [MLflow Guide](MLFLOW_GUIDE.md) - Experiment tracking
+6. [ETL Pipeline Summary](ETL_PIPELINE_SUMMARY.md) - Feature engineering
+7. [Dashboard Implementation](DASHBOARD_IMPLEMENTATION.md) - Model integration
 
 ### Software Developer
 1. [Makefile Guide](MAKEFILE_GUIDE.md) - Development commands
@@ -229,11 +299,14 @@ Welcome to the Spotify Track Analytics documentation. This directory contains co
 
 | Document | Last Updated | Changes |
 |----------|--------------|---------|
+| **Hyperparameter Tuning Results** | **2025-11-14** | ⭐ NEW: 71% R² improvement, Optuna results |
+| **Pipeline Verification Summary** | **2025-11-14** | NEW: Production verification report |
+| **Model Collapse Fix** | **2025-11-14** | NEW: Debugging case study |
+| MLflow Guide | 2025-11-13 | Initial creation |
+| ML Pipeline Improvements Spec | 2025-11-13 | Initial creation |
 | Project Completion Summary | 2025-11-12 | Initial creation |
 | Dashboard Implementation | 2025-11-12 | Initial creation |
 | Makefile Guide | 2025-11-12 | Initial creation |
-| ML Pipeline Summary | 2025-11-12 | Initial creation |
-| Streamlit App Guide | 2025-11-12 | Initial creation |
 
 ---
 
@@ -310,6 +383,24 @@ Makefile Guide
 
 ---
 
-**Index Version**: 1.0
-**Last Updated**: 2025-11-12
-**Total Documentation**: 11 files, 150+ pages
+**Index Version**: 2.0
+**Last Updated**: 2025-11-14
+**Total Documentation**: 20 files, 250+ pages
+
+---
+
+## 🌟 Featured Documentation
+
+### Must-Read for Model Performance
+**[Hyperparameter Tuning Results](HYPERPARAMETER_TUNING_RESULTS.md)** - Detailed report on achieving 71% R² improvement through Optuna optimization. Includes:
+- Before/after performance comparison
+- Best hyperparameters found
+- Search space configuration
+- Production deployment recommendations
+
+### Essential for Production
+**[Pipeline Verification Summary](PIPELINE_VERIFICATION_SUMMARY.md)** - Complete verification that the model is atomic, reproducible, and production-ready. Includes:
+- Reproducibility tests
+- Atomicity verification
+- Collapse detection
+- CI/CD integration guide
