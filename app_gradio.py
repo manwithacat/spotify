@@ -61,8 +61,10 @@ def load_model():
     latest_model = model_files[0]
 
     # Find corresponding metadata file
-    timestamp = latest_model.split('_')[-1].replace('.joblib', '')
-    metadata_file = f'outputs/metadata/xgb_metadata_{timestamp}.json'
+    # Extract everything after 'xgb_model_' and before '.joblib'
+    model_basename = Path(latest_model).stem  # Gets filename without extension
+    suffix = model_basename.replace('xgb_model_', '')  # Gets 'full_20251114_135842' or similar
+    metadata_file = f'outputs/metadata/xgb_metadata_{suffix}.json'
 
     # Load model
     model = joblib.load(latest_model)
