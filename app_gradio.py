@@ -12,6 +12,8 @@ from plotly.subplots import make_subplots
 import joblib
 import json
 from pathlib import Path
+import shap
+import matplotlib.pyplot as plt
 
 # ============================================================================
 # Data Loading Functions
@@ -335,6 +337,92 @@ def create_predictions_scatter():
     )
 
     fig.update_layout(height=500)
+    return fig
+
+# ============================================================================
+# SHAP Analysis Functions
+# ============================================================================
+
+# Compute SHAP values once (cached globally)
+_shap_values = None
+_shap_base_value = None
+_shap_sample_data = None
+
+def get_shap_values():
+    """Compute and cache SHAP values"""
+    global _shap_values, _shap_base_value, _shap_sample_data
+
+    if _shap_values is None:
+        # Use smaller sample for SHAP
+        shap_sample_size = min(500, len(X_test))
+        _shap_sample_data = X_test[:shap_sample_size]
+
+        # Compute SHAP values
+        explainer = shap.TreeExplainer(model)
+        _shap_values = explainer.shap_values(_shap_sample_data)
+        _shap_base_value = explainer.expected_value
+
+    return _shap_values, _shap_base_value, _shap_sample_data
+
+def create_shap_summary():
+    """Create SHAP summary plot (beeswarm)"""
+    shap_values, _, X_shap_sample = get_shap_values()
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    shap.summary_plot(shap_values, X_shap_sample, show=False, plot_type="dot")
+    plt.title("SHAP Feature Impact Distribution", fontsize=14, pad=20)
+    plt.tight_layout()
+    return fig
+
+def create_shap_bar():
+    """Create SHAP bar plot (mean absolute impact)"""
+    shap_values, _, X_shap_sample = get_shap_values()
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    shap.summary_plot(shap_values, X_shap_sample, plot_type="bar", show=False)
+    plt.title("Average Feature Impact (Mean |SHAP value|)", fontsize=12, pad=15)
+    plt.tight_layout()
+    return fig
+
+def create_shap_waterfall(sample_idx=0):
+    """Create SHAP waterfall plot for a specific sample"""
+    shap_values, base_value, X_shap_sample = get_shap_values()
+
+    # Validate sample_idx
+    max_idx = len(shap_values) - 1
+    sample_idx = min(max(0, int(sample_idx)), max_idx)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    shap.waterfall_plot(
+        shap.Explanation(
+            values=shap_values[sample_idx],
+            base_values=base_value,
+            data=X_shap_sample.iloc[sample_idx],
+            feature_names=X_shap_sample.columns.tolist()
+        ),
+        show=False
+    )
+    plt.title(f"SHAP Explanation for Track #{sample_idx}", fontsize=12, pad=15)
+    plt.tight_layout()
+    return fig
+
+def create_shap_dependence(feature_name=None):
+    """Create SHAP dependence plot for top feature"""
+    shap_values, _, X_shap_sample = get_shap_values()
+
+    # Use top feature if not specified
+    if feature_name is None:
+        feature_name = feature_importance.iloc[0]['feature']
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    shap.dependence_plot(
+        feature_name,
+        shap_values,
+        X_shap_sample,
+        show=False
+    )
+    plt.title(f"SHAP Dependence: {feature_name.capitalize()}", fontsize=12, pad=15)
+    plt.tight_layout()
     return fig
 
 # ============================================================================
@@ -700,7 +788,51 @@ with gr.Blocks(css=custom_css, title="Spotify Track Analytics", theme=gr.themes.
             with gr.Accordion("📊 Feature Importance", open=True):
                 importance_plot = gr.Plot(value=create_feature_importance())
 
-            with gr.Accordion("🎯 Model Predictions", open=False):
+            with gr.Accordion("🎯 SHAP Feature Impact Analysis", open=False):
+                gr.Markdown("""
+                **SHAP (SHapley Additive exPlanations)** values show how each feature contributes to predictions.
+                Unlike traditional feature importance, SHAP shows both *direction* and *magnitude* of impact.
+                """)
+
+                with gr.Row():
+                    with gr.Column():
+                        gr.Markdown("### Feature Impact Distribution")
+                        shap_summary_plot = gr.Plot(value=create_shap_summary())
+                        gr.Markdown("""
+                        **Reading the plot:**
+                        - Features at top have most impact
+                        - Red (high values) on right = higher predictions
+                        - Blue (low values) on left = lower predictions
+                        """)
+
+                with gr.Row():
+                    with gr.Column():
+                        gr.Markdown("### Average Feature Impact")
+                        shap_bar_plot = gr.Plot(value=create_shap_bar())
+
+                    with gr.Column():
+                        gr.Markdown("### Sample Prediction Explanation")
+                        sample_slider = gr.Slider(0, 499, value=0, step=1, label="Track Index")
+                        shap_waterfall_plot = gr.Plot(value=create_shap_waterfall(0))
+
+                        # Update waterfall plot when slider changes
+                        sample_slider.change(
+                            fn=create_shap_waterfall,
+                            inputs=[sample_slider],
+                            outputs=[shap_waterfall_plot]
+                        )
+
+                with gr.Row():
+                    with gr.Column():
+                        gr.Markdown("### Top Feature Dependence")
+                        shap_dep1_plot = gr.Plot(value=create_shap_dependence())
+
+                    with gr.Column():
+                        gr.Markdown("### Second Feature Dependence")
+                        second_feature = feature_importance.iloc[1]['feature']
+                        shap_dep2_plot = gr.Plot(value=create_shap_dependence(second_feature))
+
+            with gr.Accordion("📈 Model Predictions", open=False):
                 predictions_plot = gr.Plot(value=create_predictions_scatter())
                 # Get current metrics for note
                 current_r2 = metadata.get('metrics', {}).get('test_r2',

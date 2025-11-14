@@ -12,6 +12,8 @@ from plotly.subplots import make_subplots
 import joblib
 import json
 from pathlib import Path
+import shap
+import matplotlib.pyplot as plt
 
 # Page configuration
 st.set_page_config(
@@ -499,6 +501,143 @@ with tab3:
     - **{top_features.iloc[2]['feature'].capitalize()}** is the third most important ({top_features.iloc[2]['importance']:.1%})
     - These top 3 features account for {top_features.head(3)['importance'].sum():.1%} of the model's predictive power
     """)
+
+    st.markdown("---")
+
+    # SHAP Analysis
+    st.markdown("### 🎯 SHAP Feature Impact Analysis")
+    st.markdown("""
+    **SHAP (SHapley Additive exPlanations)** values show how each feature contributes to individual predictions.
+    Unlike traditional feature importance, SHAP values show both *direction* (positive/negative impact) and *magnitude*.
+    """)
+
+    # Cache SHAP computation for performance
+    @st.cache_data
+    def compute_shap_values(_model, X_sample):
+        """Compute SHAP values for a sample of data"""
+        # Use TreeExplainer for XGBoost
+        explainer = shap.TreeExplainer(_model)
+        shap_values = explainer.shap_values(X_sample)
+        return shap_values, explainer.expected_value
+
+    # Load data for SHAP analysis
+    X_shap, y_shap = load_ml_data()
+
+    # Use a smaller sample for SHAP (computational efficiency)
+    shap_sample_size = min(500, len(X_shap))
+    X_shap_sample = X_shap[:shap_sample_size]
+
+    with st.spinner("Computing SHAP values... This may take a moment."):
+        shap_values, base_value = compute_shap_values(model, X_shap_sample)
+
+    # SHAP Summary Plot (Beeswarm)
+    st.markdown("#### Feature Impact Distribution")
+    st.markdown("""
+    This plot shows how each feature affects predictions across the dataset:
+    - **Position (x-axis)**: SHAP value (impact on prediction)
+    - **Color**: Feature value (red = high, blue = low)
+    - **Density**: How often this impact occurs
+    """)
+
+    fig_shap_summary, ax = plt.subplots(figsize=(10, 8))
+    shap.summary_plot(shap_values, X_shap_sample, show=False, plot_type="dot")
+    st.pyplot(fig_shap_summary, use_container_width=True)
+    plt.close()
+
+    st.caption("""
+    **Reading the plot:**
+    - Features at the top have the most impact on predictions
+    - Red dots (high feature values) on the right mean higher predictions
+    - Blue dots (low feature values) on the left mean lower predictions
+    """)
+
+    # SHAP Bar Plot (Mean Absolute Impact)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### Average Feature Impact")
+        fig_shap_bar, ax = plt.subplots(figsize=(8, 6))
+        shap.summary_plot(shap_values, X_shap_sample, plot_type="bar", show=False)
+        st.pyplot(fig_shap_bar, use_container_width=True)
+        plt.close()
+
+        st.caption("""
+        **Mean |SHAP value|** - Average magnitude of impact across all predictions.
+        Complements XGBoost's gain-based importance with impact-based importance.
+        """)
+
+    with col2:
+        st.markdown("#### Sample Prediction Explanation")
+
+        # Select a random sample for waterfall plot
+        sample_idx = st.slider("Select track index to explain", 0, shap_sample_size-1, 0)
+
+        # Create waterfall plot
+        fig_waterfall, ax = plt.subplots(figsize=(8, 6))
+        shap.waterfall_plot(
+            shap.Explanation(
+                values=shap_values[sample_idx],
+                base_values=base_value,
+                data=X_shap_sample.iloc[sample_idx],
+                feature_names=X_shap_sample.columns.tolist()
+            ),
+            show=False
+        )
+        st.pyplot(fig_waterfall, use_container_width=True)
+        plt.close()
+
+        st.caption(f"""
+        **Waterfall for track #{sample_idx}:**
+        - Base value: {base_value:.2f} (average prediction)
+        - Actual prediction: {model.predict(X_shap_sample.iloc[[sample_idx]])[0]:.2f}
+        - Shows how each feature pushes prediction up or down
+        """)
+
+    # SHAP Dependence Plots
+    st.markdown("#### Feature Dependence Analysis")
+    st.markdown("Explore how individual features affect predictions across different values:")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Top feature dependence
+        top_feature = feature_importance.iloc[0]['feature']
+        fig_dep1, ax = plt.subplots(figsize=(8, 5))
+        shap.dependence_plot(
+            top_feature,
+            shap_values,
+            X_shap_sample,
+            show=False
+        )
+        st.pyplot(fig_dep1, use_container_width=True)
+        plt.close()
+
+        st.caption(f"""
+        **{top_feature.capitalize()} dependence:**
+        Shows relationship between {top_feature} values and their impact on predictions.
+        Color represents interaction with most correlated feature.
+        """)
+
+    with col2:
+        # Second feature dependence
+        second_feature = feature_importance.iloc[1]['feature']
+        fig_dep2, ax = plt.subplots(figsize=(8, 5))
+        shap.dependence_plot(
+            second_feature,
+            shap_values,
+            X_shap_sample,
+            show=False
+        )
+        st.pyplot(fig_dep2, use_container_width=True)
+        plt.close()
+
+        st.caption(f"""
+        **{second_feature.capitalize()} dependence:**
+        Shows relationship between {second_feature} values and their impact on predictions.
+        Helps identify non-linear patterns and feature interactions.
+        """)
+
+    st.markdown("---")
 
     # Model Performance
     st.markdown("### 📈 Model Performance on Full Dataset")
