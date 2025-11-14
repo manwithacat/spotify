@@ -21,7 +21,12 @@
 
 **No installation required!** Try the interactive dashboard now:
 
-**[ Launch Spotify Track Analytics on Hugging Face Spaces](https://huggingface.co/spaces/jmbarlow/spotify-track-analytics)**
+**[ Launch Spotify Track Analytics on Hugging Face Spaces](https://huggingface.co/spaces/manwithacat/spotify-track-analytics)**
+
+
+**[ Launch Spotify Track Analytics on Streamlit.io](https://spotify-pop.streamlit.apps)**
+
+
 
 ### Run Locally
 
