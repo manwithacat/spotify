@@ -147,9 +147,10 @@ with st.sidebar:
     Explore 114,000 Spotify tracks and predict popularity using machine learning.
 
     **Model Performance:**
-    - R² Score: 0.39
-    - RMSE: 17.4
-    - MAE: 13.0
+    - R² Score: 0.86
+    - Adjusted R²: 0.85
+    - RMSE: 5.74
+    - MAE: 4.54
     """)
     st.markdown("---")
     st.markdown("### Quick Stats")
@@ -734,6 +735,6 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
     <p>🎵 Spotify Track Analytics Dashboard | Built with Streamlit & XGBoost</p>
-    <p>Data: 114,000 tracks from Kaggle | Model R² = 0.39</p>
+    <p>Data: 114,000 tracks from Kaggle | Model R² = 0.86 | RMSE = 5.74</p>
 </div>
 """, unsafe_allow_html=True)

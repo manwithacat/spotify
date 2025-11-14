@@ -642,7 +642,7 @@ with gr.Blocks(css=custom_css, title="Spotify Track Analytics", theme=gr.themes.
                 predictions_plot = gr.Plot(value=create_predictions_scatter())
                 gr.Markdown("""
                 **Note:** Points closer to the red diagonal line indicate better predictions.
-                The model achieves an R² score of 0.39, explaining 39% of popularity variance.
+                The model achieves an R² score of 0.86, explaining 86% of popularity variance.
                 """)
 
         # ====================================================================
@@ -727,7 +727,7 @@ with gr.Blocks(css=custom_css, title="Spotify Track Analytics", theme=gr.themes.
     # Footer
     gr.Markdown("""
     ---
-    **Model Info:** XGBoost Regressor | R² = 0.39 | RMSE = 17.4 | Dataset: 114,000 tracks
+    **Model Info:** XGBoost Regressor | R² = 0.86 | Adjusted R² = 0.85 | RMSE = 5.74 | MAE = 4.54 | Dataset: 114,000 tracks
     """)
 
 # Launch the app
